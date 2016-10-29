@@ -48,6 +48,8 @@ namespace Troschuetz.Random.Tests
 
         protected abstract IGenerator GetGenerator(uint seed);
 
+        protected virtual string GeneratorName { get { return _generator.GetType().Name; } }
+
         [Test]
         [Repeat(RepetitionCount)]
         public void Booleans_SameOutputAsNextBoolean()
@@ -577,10 +579,10 @@ namespace Troschuetz.Random.Tests
         [Test]
         public void Next_LargeNegativeMax()
         {
-			Assert.Throws<ArgumentOutOfRangeException>(() =>
-			{
-				_generator.Next((int)LargeNeg);
-			});
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                _generator.Next((int)LargeNeg);
+            });
         }
 
         /*=============================================================================
@@ -590,10 +592,10 @@ namespace Troschuetz.Random.Tests
         [Test]
         public void Next_MinSmallerThanMax()
         {
-			Assert.Throws<ArgumentOutOfRangeException>(() =>
-			{
-				_generator.Next((int)LargePos, (int)SmallPos);
-			});
+            Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                _generator.Next((int)LargePos, (int)SmallPos);
+            });
         }
 
         /*=============================================================================

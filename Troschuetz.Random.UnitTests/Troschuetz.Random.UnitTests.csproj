@@ -69,6 +69,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Category.cs" />
     <Compile Include="Continuous\BetaDistributionTests.cs" />
     <Compile Include="Continuous\BetaPrimeDistributionTests.cs" />
     <Compile Include="Continuous\CauchyDistributionTests.cs" />

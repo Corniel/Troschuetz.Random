@@ -34,22 +34,14 @@ namespace Troschuetz.Random.Tests
         ///   Choose random points on a large interval. The spacings between the points should be
         ///   asymptotically exponentially distributed. The name is based on the birthday paradox.
         /// </summary>
-        [Test]
-        public void Diehard_BirthdaySpacings()
+        [Test, Category(Category.Diehard)]
+        public void BirthdaySpacings()
         {
             const int days = 365;
             const int sampleCount = 1000;
 
             var samples = _generator.Integers(days).Take(sampleCount).ToArray();
             var distances = new List<double>(sampleCount * sampleCount);
-
-            //Parallel.For(0, sampleCount, i =>
-            //{
-            //    Parallel.For(0, sampleCount, j =>
-            //    {
-            //        distances.Add(Math.Abs(samples[i] - samples[j]));
-            //    });
-            //});
 
             for (var i = 0; i < samples.Length; ++i)
             {
@@ -75,8 +67,58 @@ namespace Troschuetz.Random.Tests
             var medianUpp = Math.Log(2.0) / lambdaLow;
 
             const double adj = 1.28; // Factor found while testing...
-            Assert.True(ApproxEquals(median / adj, medianLow), $"Generator {_generator.GetType().Name} failed: {median} < {medianLow}");
-            Assert.True(ApproxEquals(median / adj, medianUpp), $"Generator {_generator.GetType().Name} failed: {median} > {medianUpp}");
+            Console.WriteLine("Generator {0} had median {1}", GeneratorName, median);
+            Assert.True(ApproxEquals(median / adj, medianLow), $"Generator {GeneratorName} failed: {median} < {medianLow}");
+            Assert.True(ApproxEquals(median / adj, medianUpp), $"Generator {GeneratorName} failed: {median} > {medianUpp}");
+        }
+
+        [Test, Category(Category.Diehard)]
+        public void FlipACoin()
+        {
+            const int sampleCount = 20000000;
+
+            var heads = 0;
+            var last = false;
+            var sequance = 1;
+
+            var sequances = new int[100];
+
+            for(var i = 0; i < sampleCount;i++)
+            {
+                var current = _generator.NextBoolean();
+                if (last != current)
+                {
+                    sequances[sequance]++;
+                    sequance = 1;
+                }
+                else
+                {
+                    sequance++;
+                }
+                if(current)
+                {
+                    heads++;
+                }
+                last = current;
+            }
+
+            var distributions = new double[sequances.Length];
+            distributions[1] = 0.25 * sampleCount;
+            for(var i = 2; i < distributions.Length;i++)
+            {
+                distributions[i] = distributions[i - 1] / 2;
+            }
+
+            Console.WriteLine(GeneratorName);
+            Console.WriteLine("  heads: {0:0.000%}", heads / (double)sampleCount);
+            Console.WriteLine("  distributions:");
+            for (var i = 1; i < sequances.Length; i++)
+            {
+                var delta = sequances[i] - distributions[i];
+                Console.WriteLine("{0,3}: {1,8}  {2:0.000%}", i, sequances[i], delta / distributions[i]);
+            }
+
+            Assert.That(heads / (double)sampleCount, Is.EqualTo(0.5).Within(0.001), $"Generator {GeneratorName} failed on heads.");
         }
     }
 }
